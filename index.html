@@ -37,7 +37,7 @@ figcaption{font-size:14px;color:var(--mut)}
 .btn{font:inherit;border:0;background:var(--acc);color:#fff;border-radius:10px;padding:4px 16px;cursor:pointer;margin:4px}
 .btn.g{background:var(--pri)}.btn.r{background:var(--ac)}.btn.b{background:var(--al)}
 .ctl{padding:8px;text-align:center}
-.ft{position:fixed;bottom:0;inset-inline:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:8px 16px calc(8px + env(safe-area-inset-bottom,0px));z-index:9}
+.ft{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:8px 16px calc(8px + env(safe-area-inset-bottom,0px));z-index:9}
 .ft .btn{margin:0;padding:4px 20px}.ft .btn:disabled{opacity:.35}
 .bm{width:100%;height:26px;border-radius:8px;display:flex;overflow:hidden;color:#fff;font-size:13px}
 .bm i{display:block;text-align:center;font-style:normal}
@@ -56,6 +56,7 @@ input[type=range]{width:100%}
 #th{margin:0 8px;padding:0;width:28px;height:28px;border-radius:50%;font-size:14px;line-height:1;align-self:center;flex:none;background:var(--line);color:var(--ink)}
 .hr{display:flex}.hr nav{flex:1;min-width:0}
 :root[data-theme="dark"] th{color:#08201d}
+@media(max-width:600px){body{font-size:15.5px;line-height:1.8}main{padding:10px 8px 80px}.pg{padding:16px 14px;border-radius:14px}h1{font-size:25px}h2{font-size:20px}h3{font-size:17px}table{font-size:13px}th,td{padding:5px 6px}.cover{padding:36px 12px}.cover .fl{font-size:48px}.box{padding:8px 12px}.btn{font-size:14px;padding:3px 12px}nav button{font-size:13px;padding:0 10px}.op{font-size:15px}.ctl{display:flex;flex-wrap:wrap;justify-content:center}.ft{padding-inline:10px}}
 </style>
 </head>
 <body>
@@ -191,28 +192,35 @@ input[type=range]{width:100%}
 <div class="ctl"><button class="btn g" onclick="qs()">🔄 أسئلة جديدة</button></div>
 </section>
 </main>
-<div class="ft"><button class="btn" id="pv_" onclick="go(i-1)">→ السابق</button><span id="pn"></span><button class="btn" id="nx" onclick="go(i+1)">التالي ←</button></div>
+<div class="ft"><button class="btn" id="pv_" onclick="go(i-1)">→ السابق</button><span id="pn" dir="ltr"></span><button class="btn" id="nx" onclick="go(i+1)">التالي ←</button></div>
 <script>
 var P=[].slice.call(document.querySelectorAll('.pg')),i=0,nv=document.getElementById('nv');
 P.forEach(function(p,k){var b=document.createElement('button');b.textContent=p.dataset.t;b.onclick=function(){go(k)};nv.appendChild(b)});
+P.forEach(function(p,k){if(!k)return;var d=document.createElement('div');d.className='ctl';d.style.cssText='display:flex;justify-content:space-between;margin-top:24px';
+d.innerHTML='<button class="btn" onclick="go('+(k-1)+')">→ السابق</button>'+(k<P.length-1?'<button class="btn" onclick="go('+(k+1)+')">التالي ←</button>':'<span></span>');p.appendChild(d)});
+var tx=0,ty=0;document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+document.addEventListener('touchend',function(e){var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(e.target.closest('table,input,canvas'))return;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*2)go(dx<0?i+1:i-1)},{passive:true});
 function go(n){if(n<0||n>=P.length)return;i=n;P.forEach(function(p,k){p.classList.toggle('on',k==n)});
 [].forEach.call(nv.children,function(b,k){b.classList.toggle('on',k==n)});nv.children[n].scrollIntoView({inline:'center',block:'nearest'});
 document.getElementById('pr').style.width=(n/(P.length-1)*100)+'%';document.getElementById('pn').textContent=(n+1)+' / '+P.length;
-document.getElementById('pv_').disabled=n==0;document.getElementById('nx').disabled=n==P.length-1;window.scrollTo(0,0);try{localStorage.setItem('pg',n)}catch(e){}}
+document.getElementById('pv_').disabled=n==0;document.getElementById('nx').disabled=n==P.length-1;window.scrollTo(0,0);try{localStorage.setItem('pg',n)}catch(e){}if(window.fit)setTimeout(fit,30)}
 document.onkeydown=function(e){if(e.key=='ArrowLeft')go(i+1);if(e.key=='ArrowRight')go(i-1)};
 var run={m:1,r:1},cur=0;
 function tg(k){run[k]=!run[k]}
-var cm=document.getElementById('cm'),x=cm.getContext('2d'),E=[],k;
-for(k=0;k<26;k++)E.push({x:Math.random()*700,y:20+Math.random()*200,a:Math.random()*6.28});
-var cr=document.getElementById('cr'),y=cr.getContext('2d'),D=[];
-for(k=0;k<60;k++)D.push({x:Math.random()*700,y:Math.random()*260,s:2+Math.random()*3});
+var cm=document.getElementById('cm'),x=cm.getContext('2d'),cr=document.getElementById('cr'),y=cr.getContext('2d'),E=[],D=[],k;
+function fit(){[cm,cr].forEach(function(c){var w=Math.max(c.parentNode.clientWidth,260);c.width=w;c.height=Math.round(c===cm?Math.min(240,w*.55):Math.min(260,w*.65))})}
+for(k=0;k<26;k++)E.push({x:Math.random(),y:Math.random(),a:Math.random()*6.28});
+for(k=0;k<50;k++)D.push({x:Math.random(),y:Math.random(),s:.008+Math.random()*.012});
+window.onresize=fit;fit();
 function loop(){
-if(run.m&&P[2].classList.contains('on')){x.clearRect(0,0,700,240);x.fillStyle='#ff9f4a';
-for(var r=0;r<3;r++)for(var c=0;c<10;c++){var X=45+c*68,Y=45+r*75;x.beginPath();x.arc(X,Y,17,0,6.28);x.fill();x.fillStyle='#fff';x.font='16px sans-serif';x.fillText('+',X-5,Y+5);x.fillStyle='#ff9f4a'}
-x.fillStyle='#38bdf8';E.forEach(function(e){e.a+=(Math.random()-.5)*.6;e.x+=Math.cos(e.a)*1.5+cur;e.y+=Math.sin(e.a)*1.5;if(e.x>700)e.x=0;if(e.x<0)e.x=700;if(e.y<8||e.y>232)e.a+=3;x.beginPath();x.arc(e.x,e.y,4,0,6.28);x.fill()})}
-if(run.r&&P[6].classList.contains('on')){y.fillStyle='#3b4a56';y.fillRect(0,0,700,260);y.fillStyle='#8a8f94';y.fillRect(30,40,130,60);y.fillRect(180,60,90,40);y.fillStyle='#6b7a86';y.fillRect(0,100,700,10);
-y.fillStyle='#caa';y.fillRect(0,110,700,150);y.fillStyle='#9a9a9a';y.font='15px Cairo,sans-serif';y.fillText('☁ SO₂ + NO₂ + بخار الماء',420,26);y.fillStyle='#8bc34a';y.fillRect(400,70,14,30);y.fillRect(440,60,14,40);y.fillRect(480,75,14,25);
-y.fillStyle='#e8e060';D.forEach(function(d){d.y+=d.s;if(d.y>100){d.y=30;d.x=Math.random()*700}y.fillRect(d.x,d.y,2,9)});y.fillStyle='#fff';y.fillText('مطر حامضي (pH أقل من 5.6) ← تآكل المباني وتدمير الغابات',200,240)}
+if(run.m&&P[2].classList.contains('on')){var W=cm.width,H=cm.height,cs=Math.max(4,Math.floor(W/60)),dx=W/cs,dy=H/3,rd=Math.min(17,dx*.32);x.clearRect(0,0,W,H);
+for(var r=0;r<3;r++)for(var c=0;c<cs;c++){var X=(c+.5)*dx,Y=(r+.5)*dy;x.fillStyle='#ff9f4a';x.beginPath();x.arc(X,Y,rd,0,6.28);x.fill();x.fillStyle='#fff';x.font='bold '+Math.round(rd)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('+',X,Y)}
+x.fillStyle='#38bdf8';E.forEach(function(e){e.a+=(Math.random()-.5)*.6;e.x+=(Math.cos(e.a)*1.5+cur)/W;e.y+=Math.sin(e.a)*1.5/H;if(e.x>1)e.x=0;if(e.x<0)e.x=1;if(e.y<.04||e.y>.96){e.a+=3;e.y=Math.min(.96,Math.max(.04,e.y))}x.beginPath();x.arc(e.x*W,e.y*H,Math.max(3,rd*.28),0,6.28);x.fill()})}
+if(run.r&&P[6].classList.contains('on')){var W=cr.width,H=cr.height,g=H*.5;y.fillStyle='#3b4a56';y.fillRect(0,0,W,H);y.fillStyle='#8a8f94';y.fillRect(W*.05,g-70,W*.2,70);y.fillRect(W*.3,g-45,W*.14,45);
+y.fillStyle='#8bc34a';y.fillRect(W*.6,g-35,12,35);y.fillRect(W*.7,g-48,12,48);y.fillRect(W*.8,g-28,12,28);
+y.fillStyle='#caa';y.fillRect(0,g,W,H-g);y.fillStyle='#c5cbd0';y.font='14px Cairo,sans-serif';y.textAlign='right';y.textBaseline='alphabetic';y.direction='rtl';y.fillText('☁ SO₂ + NO₂ + بخار الماء',W-10,22);
+y.fillStyle='#e8e060';D.forEach(function(d){d.y+=d.s;if(d.y>g/H){d.y=.12;d.x=Math.random()}y.fillRect(d.x*W,d.y*H,2,9)});
+y.fillStyle='#fff';y.textAlign='center';y.fillText('مطر حامضي ← تآكل المباني وتدمير الغابات',W/2,H-16)}
 requestAnimationFrame(loop)}loop();
 function lit(t){var C={a:['#f4a6a6','#e5484d','محلول حامضي ← الشريط يصبح أحمر'],b:['#a9c3f0','#3b6fd4','محلول قلوي ← الشريط يصبح أزرق'],n:['#d8c3e8','#8f5fc0','محلول متعادل ← الشريط يبقى بنفسجي']}[t],b=document.getElementById('bk'),s=document.getElementById('st');
 b.classList.remove('dip');s.style.background='#d9b3e8';document.getElementById('lq').style.background=C[0];void b.offsetWidth;b.classList.add('dip');s.style.background=C[1];document.getElementById('bt').textContent=C[2]}
