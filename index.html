@@ -196,8 +196,6 @@ input[type=range]{width:100%}
 <script>
 var P=[].slice.call(document.querySelectorAll('.pg')),i=0,nv=document.getElementById('nv');
 P.forEach(function(p,k){var b=document.createElement('button');b.textContent=p.dataset.t;b.onclick=function(){go(k)};nv.appendChild(b)});
-P.forEach(function(p,k){if(!k)return;var d=document.createElement('div');d.className='ctl';d.style.cssText='display:flex;justify-content:space-between;margin-top:24px';
-d.innerHTML='<button class="btn" onclick="go('+(k-1)+')">→ السابق</button>'+(k<P.length-1?'<button class="btn" onclick="go('+(k+1)+')">التالي ←</button>':'<span></span>');p.appendChild(d)});
 var tx=0,ty=0;document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
 document.addEventListener('touchend',function(e){var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(e.target.closest('table,input,canvas'))return;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*2)go(dx<0?i+1:i-1)},{passive:true});
 function go(n){if(n<0||n>=P.length)return;i=n;P.forEach(function(p,k){p.classList.toggle('on',k==n)});
