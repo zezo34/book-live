@@ -48,10 +48,18 @@ figcaption{font-size:14px;color:var(--mut)}
 .ph{height:26px;border-radius:8px;background:linear-gradient(90deg,#d62828,#f77f00,#fcbf49,#8ac926,#2a9d8f,#3a86ff,#7b2cbf)}
 input[type=range]{width:100%}
 .ions span{display:inline-block;padding:2px 12px;border-radius:99px;color:#fff;transition:all 1.2s;margin:4px}
+.q{margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.q p{margin:0 0 6px;font-weight:600}
+.op{display:block;width:100%;text-align:right;font:inherit;font-size:16px;padding:4px 12px;margin:5px 0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;cursor:pointer}
+.op.ok{background:#16a34a;color:#fff;border-color:#16a34a}.op.no{background:#dc2626;color:#fff;border-color:#dc2626}
+.sc{text-align:center;font-size:22px;font-weight:800;color:var(--pri);margin:14px 0}
+#th{margin:0 8px;padding:0;width:28px;height:28px;border-radius:50%;font-size:14px;line-height:1;align-self:center;flex:none;background:var(--line);color:var(--ink)}
+.hr{display:flex}.hr nav{flex:1;min-width:0}
+:root[data-theme="dark"] th{color:#08201d}
 </style>
 </head>
 <body>
-<header><div class="bar"><i id="pr"></i></div><nav id="nv"></nav></header>
+<header><div class="bar"><i id="pr"></i></div><div class="hr"><nav id="nv"></nav><button class="btn" id="th" title="تبديل الوضع" aria-label="تبديل الوضع" onclick="sth(document.documentElement.dataset.theme=='dark'?'light':'dark')"></button></div></header>
 <main>
 
 <section class="pg cover" data-t="الغلاف">
@@ -176,6 +184,12 @@ input[type=range]{width:100%}
 <p>ملوحته أعلى بحوالي 10 أضعاف المحيطات، فكثافة مائه عالية وبيسهل الطفو عليه.</p>
 </section>
 
+<section class="pg" data-t="10 · اختبار">
+<h2>اختبر نفسك: 10 أسئلة</h2>
+<p>اختار الإجابة الصح وهتعرف النتيجة فورًا.</p>
+<div id="qz"></div><div class="sc" id="sc"></div>
+<div class="ctl"><button class="btn g" onclick="qs()">🔄 أسئلة جديدة</button></div>
+</section>
 </main>
 <div class="ft"><button class="btn" id="pv_" onclick="go(i-1)">→ السابق</button><span id="pn"></span><button class="btn" id="nx" onclick="go(i+1)">التالي ←</button></div>
 <script>
@@ -209,6 +223,47 @@ function neu(){var o=document.getElementById('io');o.innerHTML='<span style="bac
 setTimeout(function(){o.innerHTML='<span style="background:#0f766e;font-size:22px">H₂O ماء 💧</span><span style="background:#64748b;font-size:22px">NaCl ملح 🧂</span><p>حمض + قلوي ← ملح + ماء</p>'},1500)}
 neu();
 try{var s=localStorage.getItem('pg');if(s!==null)i=Math.min(+s,P.length-1)}catch(e){}
+var Q=[
+['أي فلز يكون سائلًا في الظروف العادية؟',['الحديد','الزئبق','النحاس','الألومنيوم'],1],
+['عدد إلكترونات التكافؤ في اللافلزات يكون:',['1 أو 2 أو 3','4 فقط','5 أو 6 أو 7','8 دائمًا'],2],
+['أي هذه الفلزات أصلب؟',['الصوديوم Na','الماغنسيوم Mg','الألومنيوم Al','كلها متساوية'],2],
+['سبيكة البرونز تتكون من:',['نحاس 95% وقصدير 5%','حديد 95% وكربون 5%','نحاس 50% وقصدير 50%','ألومنيوم وماغنسيوم'],0],
+['الحمض حسب أرهينيوس يعطي في الماء أيونات:',['OH⁻','Na⁺','Cl⁻','H⁺'],3],
+['اسم الحمض HNO₂ هو:',['حمض نيتريك','حمض نيتروز','حمض هيدرونيتريك','حمض نيتروجين'],1],
+['لون دوار الشمس في الوسط القلوي:',['أحمر','أصفر','أزرق','بنفسجي'],2],
+['محلول قيمة pH له تساوي 3 يكون:',['حامضيًا','متعادلًا','قلويًا','لا يمكن تحديده'],0],
+['سبب الأمطار الحامضية هو ذوبان غازات مثل:',['O₂ وN₂','SO₂ وNO₂','H₂ وHe','Ar وNe'],1],
+['ناتج تفاعل التعادل بين حمض وقلوي:',['ملح وماء','فلز وغاز','أكسيد وهيدروجين','حمض أقوى'],0],
+['أي لافلز يوصّل الكهرباء جيدًا؟',['الكبريت','الجرافيت','الأكسجين','البروم'],1],
+['الرابطة الفلزية هي تجاذب بين:',['ذرتين لافلزيتين','أيونين سالبين','الكاتيونات وسحابة الإلكترونات','جزيئين'],2],
+['نستخدم السبائك لأن الفلزات النقية تكون:',['صلبة جدًا','لينة جدًا','غير موصلة','سائلة'],1],
+['من فوائد إعادة تدوير الفلزات:',['زيادة التلوث','استنزاف الخامات','توفير الطاقة وحماية البيئة','لا فائدة'],2],
+['الصيغة الكيميائية لهيدروكسيد الصوديوم:',['NaCl','NaOH','HCl','Na₂CO₃'],1],
+['شحنة مجموعة الفوسفات PO₄ هي:',['-1','-2','-3','+1'],2],
+['أي مما يلي حمض ضعيف؟',['HCl','HNO₃','حمض الخليك','NaOH'],2],
+['أكاسيد الفلزات عند ذوبانها في الماء تكوّن:',['أحماضًا','قلويات','أملاحًا','غازات'],1],
+['الغاز الذي يزيل ألوان الأدلة تمامًا هو:',['CO₂','NH₃','Cl₂','O₂'],2],
+['أدق طريقة لقياس pH هي:',['دوار الشمس','جهاز pH الرقمي','التذوق','الشم'],1],
+['لون كبريتات النحاس CuSO₄:',['أبيض','أخضر','أزرق','أحمر'],2],
+['أي هذه الأملاح شحيح الذوبان في الماء؟',['NaCl','KNO₃','AgCl','NH₄Cl'],2],
+['ملوحة البحر الميت مقارنة بالمحيطات:',['أقل','مساوية','حوالي 10 أضعاف','نصفها'],2],
+['اسم الحمض HBr هو:',['حمض هيدروكلوريك','حمض هيدروبروميك','حمض بروميك','حمض بروم'],1],
+['لون دوار الشمس في الوسط الحامضي:',['أحمر','أزرق','أخضر','أصفر'],0]];
+var sco=0,dn=0,used=[];
+function shuf(a){a=a.slice();for(var j=a.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1)),t=a[j];a[j]=a[r];a[r]=t}return a}
+function qs(){sco=0;dn=0;var z=document.getElementById('qz');z.innerHTML='';document.getElementById('sc').textContent='';
+var all=Q.map(function(_,k){return k}),fresh=all.filter(function(k){return used.indexOf(k)<0});
+if(fresh.length<10){used=[];fresh=all}
+var pick=shuf(fresh).slice(0,10);used=used.concat(pick);
+pick.forEach(function(qi,n){var q=Q[qi],d=document.createElement('div');d.className='q';d.innerHTML='<p>'+(n+1)+') '+q[0]+'</p>';
+shuf([0,1,2,3]).forEach(function(k){var b=document.createElement('button');b.className='op';b.textContent=q[1][k];b.onclick=function(){
+if(d.dataset.d)return;d.dataset.d=1;dn++;if(k==q[2])sco++;else b.classList.add('no');
+[].forEach.call(d.querySelectorAll('.op'),function(x){if(x.textContent==q[1][q[2]])x.classList.add('ok')});
+if(dn==10)document.getElementById('sc').textContent='نتيجتك: '+sco+' من 10'+(sco>=9?' 🏆 ممتاز!':sco>=6?' 👏 جيد جدًا':' 💪 راجع الدروس وحاول تاني')};d.appendChild(b)});z.appendChild(d)})}
+qs();
+function sth(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('th').textContent=t=='dark'?'☀️':'🌙';try{localStorage.setItem('th',t)}catch(e){}}
+var st=null;try{st=localStorage.getItem('th')}catch(e){}
+sth(st||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 go(i);
 </script>
 </body>
